@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('cpf_cnpj')->unique()->index();
+            $table->string('cpf_cnpj', 14)->unique()->index();
             $table->enum('type', UserType::values())->default(UserType::Common->value);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
