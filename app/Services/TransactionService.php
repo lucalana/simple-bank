@@ -28,7 +28,7 @@ class TransactionService
                 'amount' => $value,
                 'type' => TransactionType::Deposit->value
             ]);
-        }, 3);
+        });
     }
 
     public function transfer(User $user, float $value, int $payee)
