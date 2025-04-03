@@ -14,6 +14,14 @@ This project was developed using the following technologies:
 -   [MailHog](https://github.com/mailhog/MailHog)
 -   [Docker](https://www.docker.com/)
 
+##  📚 Documentation
+
+Access these two routes to view the documentation:
+
+- **`/docs/api`** – Interactive UI for exploring your API documentation.
+- **`/docs/api.json`** – JSON file containing the OpenAPI specification of your API.
+
+
 ## 🚀 Installation and Setup
 
 ### Prerequisites
@@ -58,7 +66,11 @@ To ensure everything is properly set up and that the project connects with the e
 
 ## 🛠 Usage
 
--   Run queues
+-   Run migrations and seed
     ```sh
-    php artisan queue:work
+    php artisan migrate:fresh --seed
     ```
+-   Run queues
+  ```sh
+  php artisan queue:work
+  ```
