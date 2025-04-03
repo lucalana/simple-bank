@@ -67,9 +67,9 @@ To ensure everything is properly set up and that the project connects with the e
 ## 🛠 Usage
 
 -   Run migrations and seed
-    ```sh
-    php artisan migrate:fresh --seed
-    ```
+```sh
+php artisan migrate:fresh --seed
+```
 -   Run queues
   ```sh
   php artisan queue:work
