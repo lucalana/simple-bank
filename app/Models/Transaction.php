@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
-    /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -19,19 +18,12 @@ class Transaction extends Model
         'amount',
     ];
 
-    public function casts(): array
-    {
-        return [
-            'type' => TransactionType::class,
-        ];
-    }
-
-    public function payer(): BelongsTo
+    public function payerWallet(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'payer');
     }
 
-    public function payee(): BelongsTo
+    public function payeeWallet(): BelongsTo
     {
         return $this->belongsTo(Wallet::class, 'payee');
     }

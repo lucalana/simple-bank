@@ -8,6 +8,7 @@ use App\Exceptions\InsufficientBalanceException;
 use App\Exceptions\UnauthorizedException;
 use App\Exceptions\UserTypeNotAllowedForTransferException;
 use App\Jobs\EmailNotification;
+use App\Jobs\UpdateWalletBalance;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
@@ -18,17 +19,14 @@ class TransactionService
 {
     public function deposit(User $user, float $value): void
     {
-        DB::transaction(function () use ($user, $value) {
-            $wallet = $user->wallet;
-            $wallet->amount = $wallet->amount + $value;
-            $wallet->save();
-
-            Transaction::create([
-                'payee' => $wallet->id,
+        $transaction = DB::transaction(function () use ($user, $value) {
+            return Transaction::create([
+                'payee' => $user->wallet->id,
                 'amount' => $value,
                 'type' => TransactionType::Deposit->value
             ]);
         });
+        UpdateWalletBalance::dispatch($transaction);
     }
 
     public function transfer(User $user, float $value, int $payee)
@@ -40,29 +38,22 @@ class TransactionService
             throw new InsufficientBalanceException();
         }
 
-        DB::transaction(function () use ($user, $payee, $value) {
-            $payerWallet = $user->wallet;
-            $payerWallet->amount = $payerWallet->amount - $value;
-            $payerWallet->save();
-
-            $payeeWallet = Wallet::find($payee);
-            $payeeWallet->amount = $payeeWallet->amount + $value;
-            $payeeWallet->save();
-
-            Transaction::create([
-                'payer' => $payerWallet->id,
-                'payee' => $payeeWallet->id,
-                'amount' => $value,
-                'type' => TransactionType::Transfer->value
-            ]);
-
-            $response = Http::retry(3, 3000)->get('https://util.devi.tools/api/v2/authorize');
+        $transaction = DB::transaction(function () use ($user, $payee, $value) {
+            $response = Http::get('https://util.devi.tools/api/v2/authorize');
             if($response->getStatusCode() == 403 || $response->json()['data']['authorization'] === false) {
                 throw new UnauthorizedException();
             }
+
+            return Transaction::create([
+                'payer' => $user->wallet->id,
+                'payee' => Wallet::find($payee)->id,
+                'amount' => $value,
+                'type' => TransactionType::Transfer->value
+            ]);
         });
 
-        $payeeUser = Wallet::find($payee)->user;
-        EmailNotification::dispatch($user, $payeeUser, $value);
+        UpdateWalletBalance::withChain([
+            new  EmailNotification($user, Wallet::find($payee)->user, $value),
+        ])->dispatch($transaction);
     }
 }

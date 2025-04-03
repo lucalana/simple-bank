@@ -26,8 +26,7 @@ class EmailNotification implements ShouldQueue
 
     public function handle(): void
     {
-        $response = Http::retry(3, 3000)->post('https://util.devi.tools/api/v1/notify');
-
+        $response = Http::retry(3, 1000, throw: false)->post('https://util.devi.tools/api/v1/notify');
         if ($response->getStatusCode() != 204) {
             throw new Exception();
         }
