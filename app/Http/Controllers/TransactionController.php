@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DepositRequest;
+use App\Http\Requests\TransferRequest;
 use App\Services\TransactionService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
@@ -14,21 +15,16 @@ class TransactionController extends Controller
     {
     }
 
-    public function deposit(Request $request) : JsonResponse
+    public function deposit(DepositRequest $request) : JsonResponse
     {
-        $validated = $request->validate(['value' => ['required', 'numeric', 'min:1']]);
-        $this->service->deposit($request->user(), $validated['value']);
+        $this->service->deposit($request->user(), ...$request->validated());
 
         return response()->json(['success' => 'Deposit success'], 200);
     }
 
-    public function transfer(Request $request) : JsonResponse
+    public function transfer(TransferRequest $request) : JsonResponse
     {
-        $validated = $request->validate([
-            'value' => ['required', 'numeric', 'min:1'],
-            'payee' => ['required', 'exists:wallets,id'],
-        ]);
-        $this->service->transfer($request->user(), ...$validated);
+        $this->service->transfer($request->user(), ...$request->validated());
 
         return response()->json(['success' => 'Transfer success'], 200);
     }
