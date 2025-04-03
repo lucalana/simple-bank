@@ -29,8 +29,8 @@ To ensure everything is properly set up and that the project connects with the e
 1. **Clone the repository**
 
     ```sh
-    git clone 
-    cd 
+    git clone https://github.com/lucalana/simple-bank.git
+    cd simple-bank
     ```
 
 2. **Install dependencies**
