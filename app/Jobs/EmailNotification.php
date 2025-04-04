@@ -18,9 +18,9 @@ class EmailNotification implements ShouldQueue
     public $backoff = [10, 20, 40, 70];
 
     public function __construct(
-        private User $payerUser,
-        private User $payeeUser,
-        private float $value
+        private string $payerName,
+        private string $payeeEmail,
+        private float $amount
     )
     {}
 
@@ -30,6 +30,6 @@ class EmailNotification implements ShouldQueue
         if ($response->getStatusCode() != 204) {
             throw new Exception();
         }
-        Mail::to($this->payeeUser->email)->send(new TransferCompleted($this->payerUser->name, $this->value));
+        Mail::to($this->payeeEmail)->send(new TransferCompleted($this->payerName, $this->amount));
     }
 }

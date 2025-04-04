@@ -53,7 +53,7 @@ class TransactionService
         });
 
         UpdateWalletBalance::withChain([
-            new  EmailNotification($user, Wallet::find($payee)->user, $value),
+            new  EmailNotification($user->name, Wallet::find($payee)->user->email, $value),
         ])->dispatch($transaction);
     }
 }
